@@ -1,13 +1,13 @@
-# HTTP Status Server
+# HTTP Status Simulator
 
 HTTP server with configurable response codes and delays for testing client behaviors.
 
+![HTTP Status Simulator Interface](assets/http-status-simulator.png)
 
 - Status code simulation (2XX, 3XX, 4XX, 5XX)
 - Configurable response delays
 - Web interface
 - RESTful API endpoints
-
 
 ## Use Cases
 
@@ -46,6 +46,13 @@ Direct access to specific status codes:
 - Redirect: `/301`, `/302`, `/307`, `/308`
 - Client Error: `/400`, `/401`, `/403`, `/404`, `/409`, `/429`
 - Server Error: `/500`, `/501`, `/502`, `/503`, `/504`
+
+## Web Interface
+
+```bash
+# Local access
+open http://localhost:8000/ui
+```
 
 ## Testing Examples
 
@@ -114,7 +121,6 @@ npm start
 # Expose with ngrok
 ngrok http 8000
 ```
-
 
 ## License
 
