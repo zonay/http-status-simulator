@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTTP Status Controller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 min-h-screen p-4 font-['Inter'] text-slate-50">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold">HTTP Status Controller</h1>
+        </div>
+
+        <!-- Status Display -->
+        <div class="mb-6 px-4 py-3 bg-slate-900/50 rounded-lg border border-slate-800 flex items-center justify-between">
+            <div class="text-slate-400">Current Status</div>
+            <div id="status" class="text-2xl font-mono font-medium text-slate-50 transition-colors">checking...</div>
+        </div>
+
+        <!-- Delay Control -->
+        <div class="mb-6 px-4 py-3 bg-slate-900/50 rounded-lg border border-slate-800">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-slate-400">Response Delay</div>
+                <div class="font-['JetBrains_Mono'] text-sm text-slate-400">
+                    <span id="delayValue">0</span>s
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <input type="range" 
+                       id="delayInput"
+                       min="0" 
+                       max="50" 
+                       step="0.5" 
+                       value="0"
+                       class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-slate-400 hover:accent-slate-300" />
+                <button onclick="resetDelay()" 
+                        class="shrink-0 px-2 py-1 bg-slate-800 rounded border border-slate-700 text-slate-400 hover:text-slate-300 hover:border-slate-600 font-mono text-xs">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Groups -->
+        <div class="grid gap-6">
+            <!-- Success Status Codes -->
+            <div class="space-y-3">
+                <h2 class="text-sm font-medium text-slate-400">2XX Success Responses</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <button onclick="setStatus(200)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-green-900/50 bg-slate-900 hover:bg-green-900/20 hover:border-green-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-green-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-green-400">200</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">OK</span>
+                    </button>
+                    <button onclick="setStatus(201)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-green-900/50 bg-slate-900 hover:bg-green-900/20 hover:border-green-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-green-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-green-400">201</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Created</span>
+                    </button>
+                    <button onclick="setStatus(204)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-green-900/50 bg-slate-900 hover:bg-green-900/20 hover:border-green-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-green-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-green-400">204</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">No Content</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Client Error Status Codes -->
+            <div class="space-y-3">
+                <h2 class="text-sm font-medium text-slate-400">4XX Client Error Responses</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <button onclick="setStatus(400)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-amber-900/50 bg-slate-900 hover:bg-amber-900/20 hover:border-amber-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-amber-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-amber-400">400</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Bad Request</span>
+                    </button>
+                    <button onclick="setStatus(401)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-amber-900/50 bg-slate-900 hover:bg-amber-900/20 hover:border-amber-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-amber-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-amber-400">401</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Unauthorized</span>
+                    </button>
+                    <button onclick="setStatus(404)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-amber-900/50 bg-slate-900 hover:bg-amber-900/20 hover:border-amber-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-amber-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-amber-400">404</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Not Found</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Server Error Status Codes -->
+            <div class="space-y-3">
+                <h2 class="text-sm font-medium text-slate-400">5XX Server Error Responses</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <button onclick="setStatus(500)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-red-900/50 bg-slate-900 hover:bg-red-900/20 hover:border-red-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-red-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-red-400">500</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Internal Server Error</span>
+                    </button>
+                    <button onclick="setStatus(502)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-red-900/50 bg-slate-900 hover:bg-red-900/20 hover:border-red-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-red-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-red-400">502</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Bad Gateway</span>
+                    </button>
+                    <button onclick="setStatus(503)" class="inline-flex items-center justify-start px-4 h-10 text-sm rounded-md border border-red-900/50 bg-slate-900 hover:bg-red-900/20 hover:border-red-900 transition-colors focus:outline-none disabled:opacity-50 gap-x-2 data-[state=active]:bg-red-900/40">
+                        <span class="font-['JetBrains_Mono'] font-medium text-red-400">503</span>
+                        <span class="font-['JetBrains_Mono'] text-slate-400">Service Unavailable</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Instructions -->
+        <footer class="mt-12 pt-6 border-t border-slate-800">
+            <div class="space-y-4">
+                <h3 class="text-sm font-medium text-slate-400">API Reference</h3>
+                <div class="space-y-2 font-['JetBrains_Mono'] text-xs">
+                    <p class="text-slate-400">
+                        <span class="text-slate-50" id="baseUrl">curl {baseUrl}/</span>
+                        <span class="text-slate-500 ml-2"># Get current status</span>
+                    </p>
+                    <p class="text-slate-400">
+                        <span class="text-slate-50">curl -X POST -H "Content-Type: application/json" \</span>
+                    </p>
+                    <p class="text-slate-400 pl-4">
+                        <span class="text-slate-50" id="setStatusUrl">-d '{"status":404}' {baseUrl}/setStatus</span>
+                        <span class="text-slate-500 ml-2"># Set status code</span>
+                    </p>
+                    <p class="text-slate-400">
+                        <span class="text-slate-50" id="directUrl">curl {baseUrl}/418</span>
+                        <span class="text-slate-500 ml-2"># Direct status endpoint</span>
+                    </p>
+                </div>
+                <div class="space-y-2 font-['JetBrains_Mono'] text-xs mt-4">
+                    <p class="text-slate-400">
+                        <span class="text-slate-50" id="timeoutUrl">curl "{baseUrl}/404?delay=2000"</span>
+                        <span class="text-slate-500 ml-2"># 2 second timeout</span>
+                    </p>
+                </div>
+                <p class="text-slate-500 text-xs mt-4">
+                    All endpoints return {"status": number, "message": string, "timestamp": string}
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const statusDisplay = document.getElementById('status');
+        const delayInput = document.getElementById('delayInput');
+        const delayValue = document.getElementById('delayValue');
+        let currentStatus = 200;
+        let currentDelay = 0;
+
+        // Get base URL from current location
+        function getApiRoot() {
+            return window.location.origin;
+        }
+
+        // Update UI with correct URLs
+        function updateUrlExamples() {
+            const baseUrl = getApiRoot();
+            document.querySelectorAll('[id$="Url"]').forEach(el => {
+                el.textContent = el.textContent.replace('{baseUrl}', baseUrl);
+            });
+        }
+
+        // Update active button state with background colors
+        function updateActiveButton(status) {
+            document.querySelectorAll('button').forEach(btn => {
+                btn.dataset.state = btn.textContent.includes(status.toString()) ? 'active' : '';
+            });
+        }
+
+        // Check current status
+        async function checkStatus() {
+            try {
+                statusDisplay.textContent = 'waiting...';
+                const response = await fetch(`/`);
+                statusDisplay.textContent = response.status;
+                updateActiveButton(response.status);
+            } catch (error) {
+                statusDisplay.textContent = 'Error';
+                statusDisplay.classList.add('text-red-600');
+            }
+        }
+
+        // Set new status
+        async function setStatus(code) {
+            try {
+                statusDisplay.textContent = 'waiting...';
+                const response = await fetch(`/setStatus`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: code })
+                });
+
+                if (response.ok) {
+                    checkStatus();
+                } else {
+                    throw new Error('Failed to set status');
+                }
+            } catch (error) {
+                statusDisplay.textContent = 'Error';
+                statusDisplay.classList.add('text-red-600');
+            }
+        }
+
+        // Add debounce helper
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Update delay preview immediately but debounce server update
+        function handleDelayChange() {
+            const seconds = parseFloat(delayInput.value);
+            delayValue.textContent = seconds;
+        }
+
+        // Debounced function to update server
+        const updateServerDelay = debounce((value) => {
+            const delay = Math.round(parseFloat(value) * 1000); // Convert to milliseconds
+            fetch('/config/delay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ delay })
+            }).then(() => checkStatus());
+        }, 300); // Wait 300ms after last change
+
+        // Reset delay to 0
+        function resetDelay() {
+            delayInput.value = 0;
+            handleDelayChange();
+            updateServerDelay(0);
+        }
+
+        // Update event listeners
+        delayInput.addEventListener('input', handleDelayChange);
+        delayInput.addEventListener('change', () => updateServerDelay(delayInput.value));
+
+        // Initialize
+        updateUrlExamples();
+        checkStatus();
+    </script>
+</body>
+</html>

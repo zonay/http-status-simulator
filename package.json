@@ -1,0 +1,17 @@
+{
+  "name": "portable-http-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",           
+    "tunnel": "ngrok http 8000",          
+    "dev": "npm run start & npm run tunnel" 
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
