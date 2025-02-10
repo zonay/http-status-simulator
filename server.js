@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const app = express();
 const port = 8000;
 
@@ -42,6 +43,67 @@ app.use(async (req, res, next) => {
     }
 });
 
+// CSV logging setup
+const LOG_FILE = path.join(__dirname, 'requests.csv');
+const CSV_HEADERS = 'timestamp,method,path,fullUrl,queryParams,status,ip,userAgent,responseTime\n';
+
+// Ensure log file exists with headers
+if (!fs.existsSync(LOG_FILE)) {
+    fs.writeFileSync(LOG_FILE, CSV_HEADERS);
+}
+
+// Helper function to escape CSV values
+function escapeCsvValue(value) {
+    if (value === null || value === undefined) return '""';
+    const str = String(value);
+    if (str === '-') return '"-"';
+    
+    // If contains quotes, commas, or newlines, needs escaping
+    if (/[",\n\r]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`;
+    }
+    return `"${str}"`;
+}
+
+// CSV logging middleware
+app.use((req, res, next) => {
+    const start = Date.now();
+    
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        let queryParams = '-';
+        
+        if (Object.keys(req.query).length) {
+            try {
+                queryParams = JSON.stringify(req.query).replace(/"/g, '""');
+            } catch (e) {
+                queryParams = '-';
+            }
+        }
+
+        // Construct full URL
+        const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+        const logEntry = [
+            new Date().toISOString(),
+            req.method,
+            req.path,
+            fullUrl,
+            queryParams,
+            res.statusCode,
+            req.ip,
+            (req.get('user-agent') || '-'),
+            duration
+        ].map(escapeCsvValue).join(',') + '\n';
+
+        fs.appendFile(LOG_FILE, logEntry, (err) => {
+            if (err) console.error('Error writing to log file:', err);
+        });
+    });
+
+    next();
+});
+
 app.get("/ui", (req, res) => {
     res.status(200).sendFile(path.join(__dirname, 'ui', 'index.html'));
 });
@@ -79,7 +141,8 @@ app.get("/", async (req, res) => {
 app.get("/config", (req, res) => {
     res.json({
         apiRoot: req.protocol + '://' + req.get('host'),
-        version: "1.0.0"
+        version: "1.0.0",
+        logFile: LOG_FILE
     });
 });
 

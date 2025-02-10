@@ -109,6 +109,21 @@ async function fetchWithRetry(url: string, retries = 3) {
 }
 ```
 
+### Request Logging
+
+All requests are logged to `requests.csv` with the following information:
+- Timestamp (ISO format)
+- HTTP Method
+- Request Path
+- Full URL (including protocol, host, path, and query string)
+- Query Parameters (JSON format)
+- Response Status
+- Client IP
+- User Agent
+- Response Time (ms)
+
+```
+
 ## Development
 
 ```bash
